@@ -73,19 +73,3 @@ stailer_ecom/
 ```
 
 ---
-
-## 📚 Interview & Presentation Preparation Guide
-
-### 1. **How does the recommendation pipeline work?**
-"We utilize a Single-LLM + Local ML hybrid pipeline. When a user enters a query, Gemini 3.5 Flash parses the semantic intent once to generate a structured StylePlan schema (such as occasion, formality, colors, and category lists). We then perform candidate retrieval from the SQLite database. Candidates are scored locally using a multi-factor formula weighing TF-IDF similarity, biometric body DNA, skin tone color harmony, historical likes/dislikes, and ratings. Reranking is completed locally in under 5ms, avoiding API latency and token limit issues."
-
-### 2. **How do the body shape and skin tone features work?**
-"We use supervised machine learning models trained locally using `scikit-learn` and pickled to `/ml_artifacts/`. 
-- **Body Shape DNA:** Uses a Multi-Class Logistic Regression model. It inputs height, weight, bust, waist, and hips to calculate anthropological ratios and predicts the silhouette (Hourglass, Round, Rectangle, Athletic, Petite).
-- **Skin Undertone:** Uses a KNN classifier. It samples webcam RGB pixels to predict the color undertone (Fair, Medium, Olive, Deep)."
-
-### 3. **How does the system learn user preferences in real-time?**
-"We implemented a dynamic gradient-drift learning algorithm. When a user likes or dislikes a clothing item, a background process updates their profile's style, fit, and color weights (likes drift weights +0.08 closer, dislikes push weights -0.15 further away). The local scorer incorporates these personalized weights on subsequent searches, causing the recommendations to shift dynamically."
-
-### 4. **How do you handle cold start or empty prompts?**
-"If the prompt is empty (e.g. landing page load or DNA diagnostic submit), we skip the Gemini API call entirely. The local ranker runs instantly (in <5ms) and relaxes its thresholds to `0.0`, dynamically backfilling the rack with catalog products matching the user's gender and DNA parameters."
