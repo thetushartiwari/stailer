@@ -171,57 +171,50 @@ def infer_style_tags(text):
 
 
 def infer_gender(title="", description="", category="", current_gender="", product_url=""):
+    # 1. Prioritize existing gender from dataset if it's already a standard value
+    current = (current_gender or "").lower().strip()
+    if current in {"female", "women", "womens", "woman", "ladies"}:
+        return "women"
+    if current in {"male", "men", "mens", "man"}:
+        return "men"
+    if current in {"kids", "kid", "child", "children", "boys", "girls", "junior", "infant"}:
+        return "kids"
+
+    # 2. Fallback to keyword-based heuristic parsing with word boundary logic
     primary_text = f"{title} {description} {product_url}".lower()
     text = f"{primary_text} {category}".lower()
     category_lower = (category or "").lower()
-    current = (current_gender or "").lower()
 
-    if current in {"kids", "kid", "child", "children"}:
-        return "kids"
+    # Tokenize text into words/numbers
+    words = set(re.findall(r"[a-z0-9]+", primary_text))
+    words_with_category = set(re.findall(r"[a-z0-9]+", text))
 
-    explicit_kids_hits = sum(1 for token in EXPLICIT_KIDS_SIGNALS if token in primary_text)
+    explicit_kids_hits = sum(1 for token in EXPLICIT_KIDS_SIGNALS if token in words)
     if explicit_kids_hits:
         return "kids"
 
-    explicit_women_hits = sum(1 for token in EXPLICIT_WOMEN_SIGNALS if token in primary_text)
+    explicit_women_hits = sum(1 for token in EXPLICIT_WOMEN_SIGNALS if token in words)
     if explicit_women_hits:
         return "women"
 
-    explicit_men_text = (
-        primary_text
-        .replace("women", "")
-        .replace("womens", "")
-        .replace("woman", "")
-        .replace("female", "")
-    )
-    explicit_men_hits = sum(1 for token in EXPLICIT_MEN_SIGNALS if token in explicit_men_text)
-
+    # Evaluate men signals excluding explicit women signals
+    men_eval_words = words - set(EXPLICIT_WOMEN_SIGNALS)
+    explicit_men_hits = sum(1 for token in EXPLICIT_MEN_SIGNALS if token in men_eval_words)
     if explicit_men_hits:
         return "men"
 
-    if current in {"female", "women"}:
-        return "women"
-    if current in {"male", "men"}:
-        return "men"
-
-    primary_women_hits = sum(1 for token in WOMEN_SIGNALS if token in primary_text)
-    primary_men_text = (
-        primary_text
-        .replace("women", "")
-        .replace("womens", "")
-        .replace("woman", "")
-        .replace("female", "")
-    )
-    primary_men_hits = sum(1 for token in MEN_SIGNALS if token in primary_men_text)
+    primary_women_hits = sum(1 for token in WOMEN_SIGNALS if token in words)
+    primary_men_eval_words = words - set(WOMEN_SIGNALS)
+    primary_men_hits = sum(1 for token in MEN_SIGNALS if token in primary_men_eval_words)
 
     if primary_women_hits > primary_men_hits:
         return "women"
     if primary_men_hits > primary_women_hits:
         return "men"
 
-    women_hits = sum(1 for token in WOMEN_SIGNALS if token in text)
-    men_text = text.replace("women", "").replace("womens", "").replace("woman", "").replace("female", "")
-    men_hits = sum(1 for token in MEN_SIGNALS if token in men_text)
+    women_hits = sum(1 for token in WOMEN_SIGNALS if token in words_with_category)
+    men_eval_words_with_category = words_with_category - set(WOMEN_SIGNALS)
+    men_hits = sum(1 for token in MEN_SIGNALS if token in men_eval_words_with_category)
 
     if women_hits > men_hits:
         return "women"
@@ -239,8 +232,22 @@ def infer_gender(title="", description="", category="", current_gender="", produ
 
 
 def infer_category(title="", description="", gender="", current_category=""):
-    text = f"{title} {description} {current_category}".lower()
-    gender = (gender or "").lower()
+    gender = (gender or "").lower().strip()
+    current = (current_category or "").lower().strip()
+
+    # 1. Prioritize existing category if it matches the inferred gender
+    if gender == "women" and current.startswith("womens_"):
+        return current
+    if gender == "men" and current.startswith("mens_"):
+        return current
+    if gender == "kids" and current.startswith("kids_"):
+        return current
+
+    # 2. Fallback to keyword matching heuristics using word tokenization
+    primary_text = f"{title} {description}".lower()
+    text = f"{primary_text} {current}".lower()
+    words = set(re.findall(r"[a-z0-9]+", text))
+
     if gender == "women":
         mapping = WOMEN_CATEGORY_BY_TOKEN
     elif gender == "kids":
@@ -249,16 +256,11 @@ def infer_category(title="", description="", gender="", current_category=""):
         mapping = MEN_CATEGORY_BY_TOKEN
 
     for token, category in mapping.items():
-        if token in text:
+        # Check if the token words are subset of text words
+        token_words = re.findall(r"[a-z0-9]+", token.lower())
+        if all(w in words for w in token_words):
             return category
 
-    current = (current_category or "").lower()
-    if gender == "women" and current.startswith("womens_"):
-        return current
-    if gender == "men" and current.startswith("mens_"):
-        return current
-    if gender == "kids" and current.startswith("kids_"):
-        return current
     if gender == "women" and current.startswith("mens_"):
         return "other"
     if gender == "men" and current.startswith("womens_"):
@@ -272,23 +274,28 @@ def infer_category(title="", description="", gender="", current_category=""):
 
 
 def infer_category_type(title="", description="", category="", current_category_type=""):
-    text = f"{title} {description} {category}".lower()
-    category = (category or "").lower()
-    current = normalize_text(current_category_type) or "Casual"
-
-    if category in SPORTS_CATEGORY_TOKENS or any(token in text for token in ["track pant", "trackpant", "activewear", "gym", "training"]):
-        return "Sportswear"
-    if category in TRADITIONAL_CATEGORY_TOKENS or any(token in text for token in ["sherwani", "pathani", "nehru", "saree", "lehenga"]):
-        return "Traditional"
-    if category in ETHNIC_CATEGORY_TOKENS or any(token in text for token in ["anarkali", "sharara", "dupatta", "kurta", "palazzo"]):
-        return "Ethnic"
-    if category in FORMAL_CATEGORY_TOKENS or any(token in text for token in ["formal shirt", "blazer", "formal trouser", "formal trousers", "business suit", "chinos"]):
-        return "Formal"
-    if category in PARTY_CATEGORY_TOKENS and current not in {"Formal", "Ethnic", "Traditional"}:
-        return "Party Wear"
+    current = normalize_text(current_category_type)
     if current in {"Casual", "Ethnic", "Formal", "Party Wear", "Sportswear", "Traditional"}:
         return current
+
+    category = (category or "").lower()
+    text = f"{title} {description} {category}".lower()
+    words = set(re.findall(r"[a-z0-9]+", text))
+
+    # Fallback to category list checks and keyword matching
+    if category in SPORTS_CATEGORY_TOKENS or any(token in words for token in ["trackpant", "activewear", "gym", "training"]) or "track pant" in text:
+        return "Sportswear"
+    if category in TRADITIONAL_CATEGORY_TOKENS or any(token in words for token in ["sherwani", "pathani", "nehru", "saree", "lehenga"]):
+        return "Traditional"
+    if category in ETHNIC_CATEGORY_TOKENS or any(token in words for token in ["anarkali", "sharara", "dupatta", "kurta", "palazzo"]):
+        return "Ethnic"
+    if category in FORMAL_CATEGORY_TOKENS or any(token in words for token in ["blazer", "chinos"]) or any(kw in text for kw in ["formal shirt", "formal trouser", "formal trousers", "business suit"]):
+        return "Formal"
+    if category in PARTY_CATEGORY_TOKENS:
+        return "Party Wear"
+
     return "Casual"
+
 
 
 def clean_product_values(title, brand, gender, category, description, category_type="", product_url=""):
