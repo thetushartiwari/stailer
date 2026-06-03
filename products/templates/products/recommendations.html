@@ -1,0 +1,670 @@
+{% extends 'products/base.html' %}
+{% block title %}stAiler – Your Personalized Wardrobe Rack{% endblock %}
+{% block content %}
+
+<!-- Custom Premium Dashboard Styles -->
+<style>
+  .recommendations-wrapper {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 30px;
+    margin-top: 10px;
+  }
+  
+  .dna-sidebar {
+    position: sticky;
+    top: 90px;
+  }
+  
+  .glass-card {
+    background: var(--panel-dark);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    margin-bottom: 25px;
+  }
+  
+  .glass-card h3 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 20px;
+    background: linear-gradient(90deg, #fff, var(--text-gray));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .dna-chip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  
+  .dna-chip span.label {
+    color: var(--text-gray);
+    font-size: 11px;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 2px;
+  }
+  
+  .dna-chip span.value {
+    color: var(--accent-cyan);
+    font-size: 13px;
+  }
+
+  /* Main Feed Column */
+  .main-rack {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+
+  /* Bubble Stylist Talk */
+  .stylist-bubble {
+    padding: 20px 25px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(0, 242, 254, 0.05), rgba(255, 8, 68, 0.02));
+    border: 1px solid rgba(0, 242, 254, 0.1);
+    font-size: 14px;
+    line-height: 1.5;
+    color: #e2e8f0;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    margin-bottom: 25px;
+  }
+  
+  .stylist-bubble::before {
+    content: 'AI Stylist Studio';
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--accent-cyan);
+    color: #000;
+  }
+  
+  /* Console prompt console */
+  .refiner-wrapper {
+    position: relative;
+    width: 100%;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 6px;
+    transition: all 0.3s ease;
+    margin-bottom: 30px;
+  }
+  
+  .refiner-wrapper:focus-within {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 25px rgba(0, 242, 254, 0.15);
+  }
+  
+  .refiner-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    padding: 12px 18px;
+  }
+  
+  .refiner-input::placeholder {
+    color: var(--text-gray);
+    opacity: 0.6;
+  }
+  
+  .refiner-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 10px 22px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent-cyan), #00b8ff);
+    color: #050508;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .refiner-btn:hover {
+    box-shadow: 0 4px 12px rgba(0, 242, 254, 0.4);
+  }
+
+  /* Clothing Card Grid */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+  }
+  
+  .prod-card {
+    position: relative;
+    border-radius: 16px;
+    background: var(--panel-dark);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: scaleIn 0.4s ease;
+  }
+  
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  
+  .prod-card.slide-out {
+    transform: scale(0.9) translateY(20px);
+    opacity: 0;
+  }
+  
+  .prod-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(0, 242, 254, 0.25);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 15px rgba(0, 242, 254, 0.15);
+  }
+  
+  .card-img-container {
+    width: 100%;
+    height: 290px;
+    position: relative;
+    overflow: hidden;
+    background: #111;
+  }
+  
+  .card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .prod-card:hover .card-img {
+    transform: scale(1.05);
+  }
+  
+  /* Match score badge overlay */
+  .match-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: rgba(10, 10, 12, 0.85);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.2);
+    z-index: 5;
+  }
+  
+  .card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, rgba(10, 10, 12, 0.95) 0%, rgba(10, 10, 12, 0.3) 60%, transparent 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .prod-card:hover .card-overlay {
+    opacity: 1;
+  }
+  
+  .overlay-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 15px;
+  }
+  
+  .action-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(10, 10, 12, 0.85);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  
+  .action-btn:hover {
+    transform: scale(1.1);
+    background: var(--text-white);
+    color: #000;
+    border-color: white;
+  }
+  
+  .btn-like:hover { background: var(--accent-magenta); color: white; border-color: var(--accent-magenta); box-shadow: 0 0 10px rgba(255, 8, 68, 0.5); }
+  .btn-dislike:hover { background: #333; color: white; border-color: #333; }
+  
+  .card-info {
+    padding: 20px;
+  }
+  
+  .card-brand {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-gray);
+    margin-bottom: 5px;
+  }
+  
+  .card-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-white);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 10px;
+  }
+  
+  .xai-tags {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  
+  .xai-tag {
+    font-size: 11px;
+    color: var(--text-gray);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.4;
+  }
+  
+  .xai-indicator-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-cyan);
+    box-shadow: 0 0 6px var(--accent-cyan);
+  }
+  
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    padding-top: 12px;
+  }
+  
+  .card-price {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent-cyan);
+  }
+  
+  .store-link {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-gray);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  
+  .store-link:hover {
+    color: var(--accent-gold);
+  }
+  
+  .gender-chips {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .gender-chip {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.02);
+    color: var(--text-gray);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  
+  .gender-chip:hover, .gender-chip.active {
+    color: white;
+    border-color: var(--accent-cyan);
+    background: rgba(0, 242, 254, 0.05);
+  }
+  
+  .feed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .feed-header h2 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+  }
+
+  .reset-dna-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    margin-top: 25px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 8, 68, 0.2);
+    background: rgba(255, 8, 68, 0.02);
+    color: var(--text-gray);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .reset-dna-btn:hover {
+    background: rgba(255, 8, 68, 0.1);
+    color: #fff;
+    border-color: var(--accent-magenta);
+    box-shadow: 0 0 12px rgba(255, 8, 68, 0.2);
+  }
+</style>
+
+<div class="recommendations-wrapper">
+  
+  <!-- Left Column: Sticky diagnosed DNA console -->
+  <div class="dna-sidebar">
+    <div class="glass-card">
+      <h3>Diagnosed DNA</h3>
+      
+      {% if profile.skin_tone %}
+        <div class="dna-chip">
+          <div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-cyan);"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M12 6a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM6 12a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM18 12a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM12 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"></path></svg>
+          </div>
+          <div>
+            <span class="label">Skin Undertone</span>
+            <span class="value" style="text-transform: capitalize;">{{ profile.skin_tone }}</span>
+          </div>
+        </div>
+      {% endif %}
+      
+      {% if profile.body_type %}
+        <div class="dna-chip">
+          <div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-cyan);"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </div>
+          <div>
+            <span class="label">Body Silhouette</span>
+            <span class="value" style="text-transform: capitalize;">{{ profile.body_type }}</span>
+          </div>
+        </div>
+      {% endif %}
+      
+      {% if profile.height %}
+        <div class="dna-chip">
+          <div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-cyan);"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </div>
+          <div>
+            <span class="label">Height Metric</span>
+            <span class="value">{{ profile.height|floatformat:0 }} cm</span>
+          </div>
+        </div>
+      {% endif %}
+      
+      <a href="{% url 'reset_stylist' %}" class="reset-dna-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+        Reset Styling DNA
+      </a>
+    </div>
+  </div>
+  
+  <!-- Right Column: Curated Rack & AJAX Prompt console -->
+  <div class="main-rack">
+    
+    <!-- Stylist Talk bubble -->
+    <div class="stylist-bubble" id="stylist-bubble-text">
+      {{ stylist_response }}
+    </div>
+    
+    <!-- Refiner console prompt -->
+    <div class="refiner-wrapper">
+      <form id="refine-form" onsubmit="submitRefinement(event);">
+        <input type="text" class="refiner-input" id="refine-input"
+               placeholder="Refine your selection... (e.g. 'more softer colors', 'add a matching jacket')">
+        <button type="submit" class="refiner-btn">Refine Style</button>
+      </form>
+    </div>
+    
+    <!-- Curated Rack Catalog -->
+    <div>
+      <div class="feed-header">
+        <h2>Your Curated Wardrobe Rack</h2>
+        <div class="gender-chips">
+          <a href="/recommendations/?gender=all" class="gender-chip {% if gender == 'all' %}active{% endif %}">All Apparel</a>
+          <a href="/recommendations/?gender=men" class="gender-chip {% if gender == 'men' %}active{% endif %}">Men</a>
+          <a href="/recommendations/?gender=women" class="gender-chip {% if gender == 'women' %}active{% endif %}">Women</a>
+          <a href="/recommendations/?gender=kids" class="gender-chip {% if gender == 'kids' %}active{% endif %}">Kids</a>
+        </div>
+      </div>
+      
+      <div class="card-grid" id="product-grid">
+        {% for p in recommended %}
+          <div class="prod-card" id="card-{{ p.id }}">
+            
+            <!-- XAI match score overlay -->
+            <div class="match-badge">
+              {{ p.match_score }}% Match
+            </div>
+            
+            <div class="card-img-container">
+              <img class="card-img" src="{{ p.image_url }}" alt="{{ p.title }}">
+              <div class="card-overlay">
+                <div class="overlay-actions">
+                  <button type="button" class="action-btn btn-like" onclick="likeProduct({{ p.id }})" title="Like item">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                  </button>
+                  <button type="button" class="action-btn btn-dislike" onclick="dislikeProduct({{ p.id }})" title="Dislike item">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card-info">
+              <div class="card-brand">{{ p.brand|default:"Stailer" }}</div>
+              <div class="card-title">{{ p.title }}</div>
+              
+              <!-- XAI badging explanations -->
+              <div class="xai-tags">
+                {% for tag in p.match_explanations %}
+                  <div class="xai-tag">
+                    <span class="xai-indicator-dot"></span>
+                    <span>{{ tag }}</span>
+                  </div>
+                {% endfor %}
+              </div>
+              
+              <div class="card-footer">
+                <span class="card-price">₹{{ p.price|floatformat:0 }}</span>
+                <a href="{{ p.product_url }}" target="_blank" class="store-link">View Store ↗</a>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div style="grid-column: 1 / -1; padding: 50px 0; text-align: center; color: var(--text-gray);">
+            No tailored styling options identified. Try adjusting your conversational prompt or resetting your diagnostic DNA.
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    
+  </div>
+  
+</div>
+
+<script>
+  function renderProducts(recommendations) {
+    const grid = document.getElementById('product-grid');
+    grid.innerHTML = '';
+    
+    if (recommendations.length === 0) {
+      grid.innerHTML = `<div style="grid-column: 1 / -1; padding: 50px 0; text-align: center; color: var(--text-gray);">
+                          No tailored styling options identified. Try adjusting your conversational prompt.
+                        </div>`;
+      return;
+    }
+    
+    recommendations.forEach(p => {
+      const tagsHtml = p.match_explanations.map(tag => `
+        <div class="xai-tag">
+          <span class="xai-indicator-dot"></span>
+          <span>${tag}</span>
+        </div>
+      `).join('');
+      
+      const card = document.createElement('div');
+      card.className = 'prod-card';
+      card.id = `card-${p.id}`;
+      card.innerHTML = `
+        <div class="match-badge">
+          ${p.match_score}% Match
+        </div>
+        <div class="card-img-container">
+          <img class="card-img" src="${p.image_url}" alt="${p.title}">
+          <div class="card-overlay">
+            <div class="overlay-actions">
+              <button type="button" class="action-btn btn-like" onclick="likeProduct(${p.id})" title="Like item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+              </button>
+              <button type="button" class="action-btn btn-dislike" onclick="dislikeProduct(${p.id})" title="Dislike item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-brand">${p.brand || 'Stailer'}</div>
+          <div class="card-title">${p.title}</div>
+          <div class="xai-tags">
+            ${tagsHtml}
+          </div>
+          <div class="card-footer">
+            <span class="card-price">₹${Math.round(p.price)}</span>
+            <a href="${p.product_url}" target="_blank" class="store-link">View Store ↗</a>
+          </div>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  function submitRefinement(e) {
+    e.preventDefault();
+    const input = document.getElementById('refine-input');
+    const prompt = input.value.trim();
+    if (!prompt) return;
+    
+    const formData = new FormData();
+    formData.append("prompt", prompt);
+    formData.append("gender", "{{ gender }}");
+    
+    fetch('/refine/', {
+      method: "POST",
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        input.value = '';
+        document.getElementById('stylist-bubble-text').textContent = data.stylist_response;
+        renderProducts(data.recommendations);
+      }
+    });
+  }
+
+  function likeProduct(id) {
+    const formData = new FormData();
+    formData.append("liked", "true");
+    formData.append("gender", "{{ gender }}");
+    
+    fetch(`/toggle-like/${id}/`, {
+      method: "POST",
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        renderProducts(data.recommendations);
+      }
+    });
+  }
+
+  function dislikeProduct(id) {
+    const card = document.getElementById(`card-${id}`);
+    if (card) {
+      card.classList.add('slide-out');
+    }
+    
+    setTimeout(() => {
+      const formData = new FormData();
+      formData.append("liked", "false");
+      formData.append("gender", "{{ gender }}");
+      
+      fetch(`/toggle-like/${id}/`, {
+        method: "POST",
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          renderProducts(data.recommendations);
+        }
+      });
+    }, 400);
+  }
+</script>
+
+{% endblock %}

@@ -1,0 +1,1125 @@
+{% extends 'products/base.html' %}
+{% load static %}
+{% block title %}stAiler – The Personal AI Styling Studio{% endblock %}
+{% block content %}
+
+<!-- Ambient Blurred Mesh Gradients Background -->
+<div class="mesh-glow mesh-1"></div>
+<div class="mesh-glow mesh-2"></div>
+
+<!-- Premium Interactive Onboarding Wizard & Visual Storytelling Styles -->
+<style>
+  /* Blurred Ambient Mesh Glows */
+  .mesh-glow {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.12;
+    filter: blur(100px);
+    -webkit-filter: blur(100px);
+  }
+  .mesh-1 {
+    top: 15%;
+    left: 20%;
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, var(--accent-cyan) 0%, transparent 70%);
+  }
+  .mesh-2 {
+    bottom: 25%;
+    right: 22%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, var(--accent-magenta) 0%, transparent 70%);
+  }
+
+  /* Root Sections */
+  #landing-story-view {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    margin: 0 auto;
+  }
+  
+  #wizard-onboarding-view {
+    display: none;
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  /* Hero Presentation section */
+  .hero-section {
+    text-align: center;
+    padding: 70px 20px 30px;
+  }
+  
+  .hero-logo {
+    max-width: 240px;
+    height: auto;
+    border-radius: 16px;
+    filter: drop-shadow(0 0 25px rgba(0, 242, 254, 0.35));
+    margin-bottom: 25px;
+  }
+  
+  .hero-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    background: linear-gradient(135deg, #fff, #94a3b8, #fff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+    text-shadow: 0 0 40px rgba(255, 255, 255, 0.05);
+  }
+  
+  .hero-subtitle {
+    font-size: 16px;
+    color: var(--text-gray);
+    line-height: 1.7;
+    max-width: 650px;
+    margin: 0 auto 45px;
+  }
+
+  /* Pulsing Glowing CTA Button */
+  .style-me-btn {
+    padding: 18px 50px;
+    border-radius: 50px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent-cyan), #00b8ff, var(--accent-magenta));
+    background-size: 200% 200%;
+    animation: gradientShift 6s infinite ease, pulseGlow 2s infinite ease-in-out;
+    color: #050508;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 30px rgba(0, 242, 254, 0.45);
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  @keyframes pulseGlow {
+    0% { box-shadow: 0 8px 30px rgba(0, 242, 254, 0.45), 0 0 0 0px rgba(0, 242, 254, 0.25); }
+    70% { box-shadow: 0 8px 30px rgba(0, 242, 254, 0.65), 0 0 0 15px rgba(0, 242, 254, 0); }
+    100% { box-shadow: 0 8px 30px rgba(0, 242, 254, 0.45), 0 0 0 0px rgba(0, 242, 254, 0); }
+  }
+  
+  .style-me-btn:hover {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 12px 35px rgba(0, 242, 254, 0.7);
+  }
+
+  /* Storytelling Grid & Containers */
+  .story-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin: 60px auto 80px;
+    max-width: 1080px;
+    padding: 0 20px;
+  }
+  
+  .story-card {
+    padding: 35px 30px;
+    background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(0, 242, 254, 0.08) 0%, rgba(18, 18, 24, 0.45) 80%);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 20px;
+    transition: transform 0.15s ease-out, border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+  }
+  
+  .story-card:hover {
+    border-color: rgba(0, 242, 254, 0.25);
+    box-shadow: 0 20px 45px rgba(0,0,0,0.5), 0 0 25px rgba(0, 242, 254, 0.15);
+  }
+  
+  .story-card .card-icon-svg {
+    margin-bottom: 22px;
+    color: var(--accent-cyan);
+    filter: drop-shadow(0 4px 8px rgba(0, 242, 254, 0.2));
+  }
+  
+  .story-card h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 12px;
+    letter-spacing: -0.3px;
+  }
+  
+  .story-card p {
+    font-size: 13.5px;
+    color: var(--text-gray);
+    line-height: 1.65;
+  }
+
+  /* Transition Classes (Google Antigravity-Style SPA elastic bounce) */
+  .fade-out-scale {
+    animation: fadeScaleOut 0.45s forwards cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .fade-in-slide {
+    animation: fadeSlideUpIn 0.85s forwards cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  
+  @keyframes fadeScaleOut {
+    to {
+      opacity: 0;
+      transform: scale(0.92) translateY(-20px);
+    }
+  }
+  
+  @keyframes fadeSlideUpIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(35px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  /* Wizard Card Container */
+  .wizard-container {
+    max-width: 680px;
+    margin: 30px auto 60px;
+    position: relative;
+    z-index: 10;
+  }
+  
+  .wizard-logo-container {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .wizard-logo {
+    max-width: 210px;
+    height: auto;
+    border-radius: 12px;
+    filter: drop-shadow(0 0 20px rgba(0, 242, 254, 0.35));
+  }
+
+  /* Progress Tracker */
+  .progress-bar-container {
+    margin-bottom: 40px;
+    position: relative;
+    padding: 0 10px;
+  }
+  
+  .progress-bar-track {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    position: relative;
+    margin-top: 15px;
+  }
+  
+  .progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent-cyan), var(--accent-magenta));
+    border-radius: 2px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .progress-steps {
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+    top: -14px;
+    left: 0;
+    width: 100%;
+  }
+  
+  .progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .progress-step span {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #0c0c0f;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-gray);
+    transition: all 0.3s ease;
+    z-index: 5;
+  }
+  
+  .progress-step.active span {
+    border-color: var(--accent-cyan);
+    color: #fff;
+    background: rgba(0, 242, 254, 0.15);
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.4);
+  }
+  
+  .progress-step.completed span {
+    border-color: var(--accent-magenta);
+    color: #fff;
+    background: rgba(255, 8, 68, 0.15);
+    box-shadow: 0 0 12px rgba(255, 8, 68, 0.4);
+  }
+  
+  .progress-step label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-gray);
+    margin-top: 8px;
+    letter-spacing: 0.5px;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+  }
+  
+  .progress-step.active label {
+    color: var(--accent-cyan);
+    opacity: 1;
+    text-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+  }
+
+  /* Wizard Card */
+  .wizard-card {
+    background: var(--panel-dark);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 35px;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6);
+    min-height: 380px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  
+  .wizard-step {
+    display: none;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  
+  .wizard-step.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .studio-header {
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  
+  .studio-header h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #fff, var(--text-gray));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .studio-header p {
+    font-size: 14px;
+    color: var(--text-gray);
+    line-height: 1.6;
+    margin-top: 10px;
+    max-width: 540px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Form Elements */
+  .form-group {
+    margin-bottom: 25px;
+  }
+  
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-white);
+    margin-bottom: 10px;
+  }
+  
+  .input-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .studio-input {
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: white;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+  }
+  
+  .studio-input:focus {
+    border-color: var(--accent-cyan);
+    background: rgba(0, 242, 254, 0.02);
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.2);
+  }
+
+  /* Gender Selector Pills */
+  .gender-selection-row {
+    display: flex;
+    gap: 15px;
+  }
+  
+  .gender-radio-label {
+    flex: 1;
+    padding: 14px 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text-gray);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .gender-radio-label:hover, .gender-radio-label.active {
+    color: white;
+    border-color: var(--accent-cyan);
+    background: rgba(0, 242, 254, 0.05);
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
+  }
+  
+  .gender-radio-label input {
+    display: none;
+  }
+
+  /* Webcam Scanner UI */
+  .camera-view-container {
+    width: 100%;
+    height: 240px;
+    background: #000;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 20px;
+    display: none;
+  }
+  
+  #video-feed {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .scanner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  
+  .scanner-overlay::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 110px;
+    height: 110px;
+    border: 2px dashed var(--accent-cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.3);
+  }
+  
+  .scanner-laser {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+    box-shadow: 0 0 10px var(--accent-cyan);
+    animation: scanAnimation 2s infinite linear;
+    display: none;
+  }
+  
+  @keyframes scanAnimation {
+    0% { top: 0%; }
+    50% { top: 100%; }
+    100% { top: 0%; }
+  }
+
+  .action-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .action-btn:hover {
+    background: rgba(0, 242, 254, 0.1);
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+  }
+
+  #camera-scan-success {
+    display: none;
+    font-size: 13px;
+    color: var(--accent-cyan);
+    line-height: 1.4;
+    text-align: center;
+    background: rgba(0, 242, 254, 0.05);
+    border: 1px solid rgba(0, 242, 254, 0.15);
+    border-radius: 10px;
+    padding: 10px;
+    margin-top: 15px;
+  }
+
+  /* Prompt Panel */
+  .primary-prompt-wrapper {
+    position: relative;
+    width: 100%;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 6px;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  }
+  
+  .primary-prompt-wrapper:focus-within {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 35px rgba(0, 242, 254, 0.18);
+  }
+  
+  .prompt-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .prompt-bar-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    padding: 12px 15px;
+  }
+  
+  .prompt-bar-input::placeholder {
+    color: var(--text-gray);
+    opacity: 0.6;
+  }
+  
+  .glowing-submit-btn {
+    padding: 12px 28px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent-cyan), #00b8ff);
+    color: #050508;
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+  }
+  
+  .glowing-submit-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 242, 254, 0.55);
+  }
+
+  /* Wizard Navigation Buttons */
+  .wizard-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-top: 35px;
+  }
+  
+  .glowing-btn {
+    padding: 13px 26px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent-cyan), #00b8ff);
+    color: #050508;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .glowing-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 22px rgba(0, 242, 254, 0.5);
+  }
+  
+  .back-btn {
+    padding: 13px 26px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text-gray);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .back-btn:hover {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .skip-btn {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-gray);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  
+  .skip-btn:hover {
+    color: var(--text-white);
+  }
+</style>
+
+<!-- STATE 1: GORGEOUS STORYTELLING LANDING VIEW -->
+<div id="landing-story-view">
+  
+  <!-- Hero Branding Story -->
+  <div class="hero-section">
+    <img src="{% static 'products/images/stailer_logo.jpg' %}" alt="stAiler Logo" class="hero-logo">
+    <h1 class="hero-title">Discover Your True Style DNA</h1>
+    <p class="hero-subtitle">stAiler is your personal cognitive fashion curator. We formulate a personalized style DNA using your biometric proportions and skin tone to curate a digital wardrobe tailored strictly to your shape and seasonal palette.</p>
+    
+    <button type="button" class="style-me-btn" onclick="transitionToWizard()">
+      Style Me
+    </button>
+  </div>
+
+  <!-- Three Floating Storytelling Card Containers -->
+  <div class="story-grid">
+    
+    <!-- Skin Tone card -->
+    <div class="story-card glass-card" onclick="transitionToWizard()">
+      <div class="card-icon-svg">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+      </div>
+      <h3>Skin Tone Scanner</h3>
+      <p>Run a local camera scan to mathematically isolate your skin tone and activate your seasonal color harmony.</p>
+    </div>
+    
+    <!-- Body Type card -->
+    <div class="story-card glass-card" onclick="transitionToWizard()">
+      <div class="card-icon-svg">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      </div>
+      <h3>Body Type Analyzer</h3>
+      <p>Predict your flattering silhouette using machine learning biometric ratios for a perfectly tailored draping fit.</p>
+    </div>
+    
+    <!-- AI Memory card -->
+    <div class="story-card glass-card" onclick="transitionToWizard()">
+      <div class="card-icon-svg">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+      </div>
+      <h3>Conversational AI</h3>
+      <p>Refine your digital rack in real-time. Our stylist blends past query contexts using dynamic session memory weights.</p>
+    </div>
+    
+  </div>
+  
+</div>
+
+<!-- STATE 2: STEP-BY-STEP ONBOARDING WIZARD -->
+<div id="wizard-onboarding-view">
+  <form id="diagnose-form" action="{% url 'diagnose_dna' %}" method="POST">
+    {% csrf_token %}
+    
+    <div class="wizard-container">
+      
+      <!-- Wizard Card Header Logo -->
+      <div class="wizard-logo-container">
+        <img src="{% static 'products/images/stailer_logo.jpg' %}" alt="stAiler Logo" class="wizard-logo">
+      </div>
+
+      <!-- Glowing Progress Tracker -->
+      <div class="progress-bar-container">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-steps">
+          <div class="progress-step active" id="step-dot-1" onclick="goToStep(1)">
+            <span>1</span>
+            <label>Identity</label>
+          </div>
+          <div class="progress-step" id="step-dot-2" onclick="goToStep(2)">
+            <span>2</span>
+            <label>Skin Scan</label>
+          </div>
+          <div class="progress-step" id="step-dot-3" onclick="goToStep(3)">
+            <span>3</span>
+            <label>Body Shape</label>
+          </div>
+          <div class="progress-step" id="step-dot-4" onclick="goToStep(4)">
+            <span>4</span>
+            <label>Styling</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wizard Card -->
+      <div class="wizard-card glass-card">
+        
+        <!-- STEP 1: IDENTITY -->
+        <div class="wizard-step active" id="step-1">
+          <div class="studio-header">
+            <h2>Identity Details</h2>
+            <p>Let's introduce ourselves. Tell stAiler how to address you in your custom styling studio.</p>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Tell Us About You</label>
+            <div class="input-grid">
+              <input type="text" name="user_name" id="user-name-input" class="studio-input" placeholder="Your Name" required>
+              <input type="number" name="age" id="user-age-input" class="studio-input" placeholder="Your Age" required min="1" max="120">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 25px;">
+            <label class="form-label">Styling Interest</label>
+            <input type="hidden" name="gender" id="selected-gender" value="all">
+            <div class="gender-selection-row">
+              <div class="gender-radio-label active" id="gend-all" onclick="setGenderManual('all')">
+                All Apparel
+              </div>
+              <div class="gender-radio-label" id="gend-men" onclick="setGenderManual('men')">
+                Men
+              </div>
+              <div class="gender-radio-label" id="gend-women" onclick="setGenderManual('women')">
+                Women
+              </div>
+              <div class="gender-radio-label" id="gend-kids" onclick="setGenderManual('kids')">
+                Kids
+              </div>
+            </div>
+          </div>
+
+          <div class="wizard-actions">
+            <div style="flex-grow: 1;"></div>
+            <button type="button" class="glowing-btn" onclick="validateStep1() ? goToStep(2) : null">Next: Scan Skin Tone &rarr;</button>
+            <button type="button" class="skip-btn" onclick="skipAllDiagnostics()" style="margin-left: 20px;">Skip Diagnostics</button>
+          </div>
+        </div>
+
+        <!-- STEP 2: SKIN TONE SCANNER -->
+        <div class="wizard-step" id="step-2">
+          <div class="studio-header">
+            <h2>Skin Tone Scanner</h2>
+            <p>Run a local camera scan to mathematically isolate your skin tone and activate your seasonal color harmony.</p>
+          </div>
+
+          <!-- Webcam Container -->
+          <div class="camera-view-container" id="cam-container">
+            <video id="video-feed" autoplay playsinline></video>
+            <div class="scanner-overlay"></div>
+            <div class="scanner-laser" id="cam-laser"></div>
+          </div>
+          
+          <!-- Sampling Helpers -->
+          <canvas id="hidden-canvas" style="display:none;"></canvas>
+          
+          <div style="margin-bottom:15px; display: flex; gap: 15px;">
+            <button type="button" class="action-btn" id="start-cam-btn" onclick="initializeWebcam()">
+              Open Webcam Scanner
+            </button>
+            <button type="button" class="action-btn" id="scan-cam-btn" style="display:none; border-color:var(--accent-cyan);" onclick="captureSkinColor()">
+              Run Color Cluster Scan
+            </button>
+          </div>
+          
+          <div id="camera-scan-success">
+            predicted: <span id="camera-predicted-tone" style="font-weight:700;">Olive</span> Undertone! 
+          </div>
+          
+          <input type="hidden" name="skin_tone" id="selected-skin-tone" value="">
+
+          <div class="wizard-actions">
+            <button type="button" class="back-btn" onclick="goToStep(1)">Back</button>
+            <button type="button" class="glowing-btn" onclick="goToStep(3)">Next: Analyze Body Type &rarr;</button>
+            <button type="button" class="skip-btn" onclick="skipStep(2)">Skip Step</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: BODY TYPE ANALYZER -->
+        <div class="wizard-step" id="step-3">
+          <div class="studio-header">
+            <h2>Body Type Analyzer</h2>
+            <p>Input your measurements. stAiler's Machine Learning classifier will dynamically predict your flattering silhouette drape.</p>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Body Metrics (Optional)</label>
+            <div class="input-grid" style="margin-bottom:15px;">
+              <input type="number" step="0.1" name="height" class="studio-input" placeholder="Height (cm)">
+              <input type="number" step="0.1" name="weight" class="studio-input" placeholder="Weight (kg)">
+            </div>
+            <div class="input-grid">
+              <input type="number" step="0.1" name="bust" class="studio-input" placeholder="Chest / Bust (in)">
+              <input type="number" step="0.1" name="waist" class="studio-input" placeholder="Waist (in)">
+            </div>
+            <div class="input-grid" style="margin-top:15px; grid-template-columns: 1fr;">
+              <input type="number" step="0.1" name="hips" class="studio-input" placeholder="Hips (in)">
+            </div>
+          </div>
+
+          <div class="wizard-actions">
+            <button type="button" class="back-btn" onclick="goToStep(2)">Back</button>
+            <button type="button" class="glowing-btn" onclick="goToStep(4)">Next: Set Style Query &rarr;</button>
+            <button type="button" class="skip-btn" onclick="skipStep(3)">Skip Step</button>
+          </div>
+        </div>
+
+        <!-- STEP 4: STYLE QUERY -->
+        <div class="wizard-step" id="step-4">
+          <div class="studio-header">
+            <h2>Custom Style Query</h2>
+            <p>Tell stAiler how we can help you style today. Input your prompt to unlock your personalized fashion rack.</p>
+          </div>
+
+          <!-- Conversational Prompt Bar -->
+          <div class="primary-prompt-wrapper" style="margin-top: 25px;">
+            <div class="prompt-row">
+              <input type="text" name="prompt" class="prompt-bar-input" id="prompt-input"
+                     placeholder="Hi, I am stAiler. Tell me, how can I help you style today?" required>
+              <button type="submit" class="glowing-submit-btn">Reveal Wardrobe</button>
+            </div>
+          </div>
+
+          <div class="wizard-actions">
+            <button type="button" class="back-btn" onclick="goToStep(3)">Back</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  let webcamStream = null;
+  let currentStep = 1;
+  const totalSteps = 4;
+
+  // GOOGLE ANTIGRAVITY-STYLE 3D MOUSE PARALLAX TILT & SPOTLIGHT Glow Physics
+  document.querySelectorAll('.story-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      // Map coordinates as custom CSS properties for dynamic spotlight gradient tracking
+      card.style.setProperty('--mouse-x', `${x}px`);
+      card.style.setProperty('--mouse-y', `${y}px`);
+      
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      // Calculate rotation angles (-8deg to 8deg) based on mouse displacement from card center
+      const rotateX = ((centerY - y) / centerY) * 8;
+      const rotateY = ((x - centerX) / centerX) * 8;
+      
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
+    });
+    
+    card.addEventListener('mouseleave', () => {
+      // Smooth visual reset inertia
+      card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+      card.style.setProperty('--mouse-x', `50%`);
+      card.style.setProperty('--mouse-y', `50%`);
+    });
+  });
+
+  // GOOGLE-STYLE SMOOTH SPA TRANSITION
+  function transitionToWizard() {
+    const storyView = document.getElementById('landing-story-view');
+    const wizardView = document.getElementById('wizard-onboarding-view');
+    
+    // Add fade-out scale transition
+    storyView.classList.add('fade-out-scale');
+    
+    setTimeout(() => {
+      storyView.style.display = 'none';
+      
+      // Reveal Wizard Card with fade-in slide transition (elastic overshoot curve)
+      wizardView.style.display = 'block';
+      wizardView.classList.add('fade-in-slide');
+      
+      // Update progress dots and trackers
+      updateProgressIndicator();
+      
+      // Set focus to name input automatically to guide interaction
+      const nameInput = document.getElementById('user-name-input');
+      if (nameInput) nameInput.focus();
+    }, 450);
+  }
+
+  function goToStep(n) {
+    if (n < 1 || n > totalSteps) return;
+    
+    // Validate Step 1 before leaving it (if moving forward)
+    if (n > 1 && currentStep === 1) {
+      if (!validateStep1()) return;
+    }
+
+    // Hide active step
+    const activeStepEl = document.querySelector('.wizard-step.active');
+    if (activeStepEl) {
+      activeStepEl.classList.remove('active');
+    }
+
+    // Update state
+    currentStep = n;
+
+    // Show new step with a micro-timeout for transition effect
+    setTimeout(() => {
+      const targetStepEl = document.getElementById(`step-${n}`);
+      if (targetStepEl) {
+        targetStepEl.classList.add('active');
+      }
+    }, 50);
+
+    // Update Progress Indicator
+    updateProgressIndicator();
+  }
+
+  function validateStep1() {
+    const nameInput = document.getElementById('user-name-input');
+    const ageInput = document.getElementById('user-age-input');
+    
+    if (!nameInput.value.trim()) {
+      alert("Please enter your name to personalize your styling studio.");
+      nameInput.focus();
+      return false;
+    }
+    
+    if (!ageInput.value || parseInt(ageInput.value) <= 0) {
+      alert("Please enter a valid age.");
+      ageInput.focus();
+      return false;
+    }
+    
+    return true;
+  }
+
+  function updateProgressIndicator() {
+    // Fill percent
+    const fillPercent = ((currentStep - 1) / (totalSteps - 1)) * 100;
+    document.getElementById('progress-fill').style.width = `${fillPercent}%`;
+
+    // Step dots active/inactive classes
+    for (let i = 1; i <= totalSteps; i++) {
+      const dot = document.getElementById(`step-dot-${i}`);
+      if (dot) {
+        dot.classList.remove('active', 'completed');
+        if (i === currentStep) {
+          dot.classList.add('active');
+        } else if (i < currentStep) {
+          dot.classList.add('completed');
+        }
+      }
+    }
+  }
+
+  function skipStep(step) {
+    if (step === 2) {
+      // Clear skin tone selector hidden field
+      document.getElementById('selected-skin-tone').value = "";
+      goToStep(3);
+    } else if (step === 3) {
+      // Clear biometrics inputs
+      document.querySelectorAll('#step-3 input[type="number"]').forEach(el => el.value = "");
+      goToStep(4);
+    }
+  }
+
+  function skipAllDiagnostics() {
+    if (!validateStep1()) return;
+    
+    // Clear biometrics and skin tone fields
+    document.getElementById('selected-skin-tone').value = "";
+    document.querySelectorAll('#step-3 input[type="number"]').forEach(el => el.value = "");
+    
+    // Jump straight to prompt screen
+    goToStep(4);
+  }
+
+  function setGenderManual(val) {
+    document.getElementById('selected-gender').value = val;
+    document.querySelectorAll('.gender-radio-label').forEach(el => {
+      el.classList.remove('active');
+    });
+    document.getElementById(`gend-${val}`).classList.add('active');
+    
+    // Dynamic Chest / Bust terminology swap based on gender context
+    const bustInput = document.querySelector('input[name="bust"]');
+    if (bustInput) {
+      if (val === 'men') {
+        bustInput.placeholder = 'Chest (in)';
+      } else if (val === 'women') {
+        bustInput.placeholder = 'Bust (in)';
+      } else {
+        bustInput.placeholder = 'Chest / Bust (in)';
+      }
+    }
+  }
+
+  async function initializeWebcam() {
+    const video = document.getElementById('video-feed');
+    const container = document.getElementById('cam-container');
+    const startBtn = document.getElementById('start-cam-btn');
+    const scanBtn = document.getElementById('scan-cam-btn');
+
+    try {
+      webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+      video.srcObject = webcamStream;
+      container.style.display = 'block';
+      startBtn.style.display = 'none';
+      scanBtn.style.display = 'flex';
+    } catch (err) {
+      alert("Unable to access camera feed. Please ensure your camera is connected.");
+    }
+  }
+
+  function captureSkinColor() {
+    const video = document.getElementById('video-feed');
+    const canvas = document.getElementById('hidden-canvas');
+    const laser = document.getElementById('cam-laser');
+    
+    // Animate laser scanning
+    laser.style.display = 'block';
+    
+    setTimeout(() => {
+      laser.style.display = 'none';
+      
+      const ctx = canvas.getContext('2d');
+      canvas.width = 120;
+      canvas.height = 120;
+      
+      // Draw centered video frame onto canvas
+      ctx.drawImage(video, video.videoWidth/2 - 60, video.videoHeight/2 - 60, 120, 120, 0, 0, 120, 120);
+      
+      // Extract middle pixel buffer
+      const imgData = ctx.getImageData(55, 55, 10, 10);
+      const data = imgData.data;
+      
+      let r = 0, g = 0, b = 0, count = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        r += data[i];
+        g += data[i+1];
+        b += data[i+2];
+        count++;
+      }
+      r = Math.round(r / count);
+      g = Math.round(g / count);
+      b = Math.round(b / count);
+
+      // POST pixel vector to skin classification ML endpoint
+      const formData = new FormData();
+      formData.append("rgb_values", JSON.stringify([r, g, b]));
+      
+      fetch('/stylist/update-skin-tone/', {
+        method: "POST",
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          // Select classified undertone in UI
+          document.getElementById('selected-skin-tone').value = data.skin_tone;
+          
+          document.getElementById('camera-predicted-tone').textContent = data.skin_tone;
+          document.getElementById('camera-scan-success').style.display = 'block';
+          
+          // Stop webcam stream to save system resource
+          if (webcamStream) {
+            webcamStream.getTracks().forEach(track => track.stop());
+            document.getElementById('cam-container').style.display = 'none';
+            document.getElementById('scan-cam-btn').style.display = 'none';
+            document.getElementById('start-cam-btn').style.display = 'flex';
+          }
+        }
+      });
+    }, 1500);
+  }
+
+  // Initialize first view progress track
+  updateProgressIndicator();
+</script>
+
+{% endblock %}

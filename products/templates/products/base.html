@@ -1,0 +1,226 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Stailer – AI Fashion Stylist{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'products/images/favicon.svg' %}">
+  
+  <!-- Premium Modern Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #0a0a0c;
+      --panel-dark: rgba(18, 18, 24, 0.7);
+      --border-glow: rgba(0, 242, 254, 0.15);
+      --accent-cyan: #00f2fe;
+      --accent-magenta: #ff0844;
+      --accent-gold: #f6d365;
+      --text-white: #f8fafc;
+      --text-gray: #94a3b8;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-white);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient Background Glows */
+    body::before {
+      content: '';
+      position: absolute;
+      top: -10%;
+      left: -10%;
+      width: 50%;
+      height: 60%;
+      background: radial-gradient(circle, rgba(0, 242, 254, 0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: absolute;
+      bottom: -10%;
+      right: -10%;
+      width: 50%;
+      height: 60%;
+      background: radial-gradient(circle, rgba(255, 8, 68, 0.05) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    nav {
+      background: rgba(10, 10, 12, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 40px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    nav .brand {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 24px;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    nav .menu {
+      display: flex;
+      align-items: center;
+      gap: 25px;
+    }
+    
+    nav a.nav-link {
+      color: var(--text-gray);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      padding: 5px 0;
+    }
+    
+    nav a.nav-link:hover, nav a.nav-link.active {
+      color: var(--text-white);
+      text-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+    }
+    
+    nav a.nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-magenta));
+      transition: width 0.3s ease;
+    }
+    
+    nav a.nav-link:hover::after, nav a.nav-link.active::after {
+      width: 100%;
+    }
+    
+    #cart-icon {
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.3s ease;
+    }
+    
+    #cart-icon:hover {
+      background: rgba(0, 242, 254, 0.1);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+    }
+    
+    #cart-icon a {
+      color: var(--text-white);
+      text-decoration: none;
+      font-size: 18px;
+    }
+    
+    #cart-count {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      background: linear-gradient(135deg, var(--accent-magenta), #ff0844);
+      color: white;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 8px rgba(255, 8, 68, 0.5);
+    }
+    
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 40px 30px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* Global Premium Glass Panel Styling */
+    .glass-panel {
+      background: var(--panel-dark);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/" class="brand">stAiler</a>
+    <div class="menu">
+      <a href="/" class="nav-link active">Stylist Studio</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    {% block content %}{% endblock %}
+  </div>
+
+  <script>
+    // Update active nav links based on URL query
+    const urlParams = new URLSearchParams(window.location.search);
+    const gender = urlParams.get('gender');
+    const links = document.querySelectorAll('nav a.nav-link');
+    
+    links.forEach(link => {
+      link.classList.remove('active');
+      const href = link.getAttribute('href');
+      if (gender) {
+        if (href.includes(`gender=${gender}`)) {
+          link.classList.add('active');
+        }
+      } else {
+        if (href === '/' && !window.location.pathname.includes('cart')) {
+          link.classList.add('active');
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
