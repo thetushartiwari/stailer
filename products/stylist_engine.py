@@ -99,7 +99,7 @@ def predict_skin_tone_from_rgb(rgb_list):
     return mapping.get(pred_idx, "Medium")
 
 def predict_body_shape(height_cm, weight_kg, bust_in, waist_in, hips_in, gender="all"):
-    """Biometric Supervised Logistic Regression or Gender-Specific Heuristics Pipeline."""
+    """Biometric styling engine. Predicts (structural_body_shape, bmi_category) independently."""
     gender = (gender or "all").lower().strip()
     
     # Calculate anthropometric ratios
@@ -108,52 +108,67 @@ def predict_body_shape(height_cm, weight_kg, bust_in, waist_in, hips_in, gender=
     bust_hips = bust_in / hips_in if hips_in else 1.0
     bmi = weight_kg / ((height_cm / 100.0) ** 2) if height_cm else 22.0
 
-    # 1. Gender-specific rules
-    if gender == "women":
-        if bmi < 18.5:
-            return "Petite"
-        if bust_waist >= 1.25 and hips_waist >= 1.25 and abs(bust_hips - 1.0) <= 0.08:
-            return "Hourglass"
-        if hips_waist >= 1.25 and bust_hips < 0.95:
-            return "Pear"
-        if bmi >= 26.5:
-            return "Apple"
-        if bust_hips >= 1.15 and hips_waist < 1.1:
-            return "Inverted Triangle"
-        return "Rectangle"
-        
-    elif gender == "men":
-        if bmi < 18.5:
-            return "Rectangle"
-        if bust_waist >= 1.2 and hips_waist < 1.15 and bust_hips >= 1.1:
-            return "V-Taper"
-        if bust_waist >= 1.1 and hips_waist >= 1.05:
-            return "Trapezoid"
-        if bmi >= 26.5:
-            return "Oval"
-        if hips_waist >= 1.15:
-            return "Triangle"
-        return "Rectangle"
-
-    # 2. General Fallback (Original logic)
-    classifier = get_loaded_classifier(BODY_CLASSIFIER_PATH)
+    # 1. Determine BMI weight category (Scale)
     if bmi < 18.5:
-        return "Petite"
+        bmi_cat = "Thin"
+    elif bmi < 25.0:
+        bmi_cat = "Normal"
+    elif bmi < 30.0:
+        bmi_cat = "Overweight"
+    else:
+        bmi_cat = "Obese"
 
-    if classifier is None:
-        # Wharton Heuristics Fallback
-        if bust_waist >= 1.25 and hips_waist >= 1.25 and abs(bust_hips - 1.0) <= 0.06:
-            return "Hourglass"
-        if bmi >= 27.5:
-            return "Round"
-        if bust_hips >= 1.12:
-            return "Athletic"
-        return "Rectangle"
+    # 2. Determine structural proportion (Shape) - Decoupled from weight classes
+    structural_shape = "Rectangle"  # default
+    
+    if gender == "women":
+        if bust_waist >= 1.25 and hips_waist >= 1.25 and abs(bust_hips - 1.0) <= 0.08:
+            structural_shape = "Hourglass"
+        elif hips_waist >= 1.25 and bust_hips < 0.95:
+            structural_shape = "Pear"
+        elif bust_hips >= 1.15 and hips_waist < 1.1:
+            structural_shape = "Inverted Triangle"
+        elif bust_waist < 1.15 and hips_waist < 1.15 and abs(bust_hips - 1.0) <= 0.08:
+            structural_shape = "Rectangle"
+        else:
+            if bmi_cat in {"Overweight", "Obese"}:
+                structural_shape = "Apple"
+            else:
+                structural_shape = "Rectangle"
+                
+    elif gender == "men":
+        if bust_waist >= 1.2 and hips_waist < 1.15 and bust_hips >= 1.1:
+            structural_shape = "V-Taper"
+        elif bust_waist >= 1.1 and hips_waist >= 1.05:
+            structural_shape = "Trapezoid"
+        elif hips_waist >= 1.15:
+            structural_shape = "Triangle"
+        else:
+            if bmi_cat in {"Overweight", "Obese"}:
+                structural_shape = "Oval"
+            else:
+                structural_shape = "Rectangle"
+                
+    else: # Fallback (Original logic)
+        classifier = get_loaded_classifier(BODY_CLASSIFIER_PATH)
+        if classifier is None:
+            if bust_waist >= 1.25 and hips_waist >= 1.25 and abs(bust_hips - 1.0) <= 0.06:
+                structural_shape = "Hourglass"
+            elif bust_hips >= 1.12:
+                structural_shape = "Athletic"
+            elif bmi_cat in {"Overweight", "Obese"}:
+                structural_shape = "Round"
+            elif bmi_cat == "Thin":
+                structural_shape = "Petite"
+            else:
+                structural_shape = "Rectangle"
+        else:
+            features = np.array([[bust_waist, hips_waist, bust_hips, bmi]])
+            pred_idx = int(classifier.predict(features)[0])
+            mapping = {0: "Hourglass", 1: "Round", 2: "Rectangle", 3: "Athletic", 4: "Petite"}
+            structural_shape = mapping.get(pred_idx, "Rectangle")
 
-    features = np.array([[bust_waist, hips_waist, bust_hips, bmi]])
-    pred_idx = int(classifier.predict(features)[0])
-    mapping = {0: "Hourglass", 1: "Round", 2: "Rectangle", 3: "Athletic", 4: "Petite"}
-    return mapping.get(pred_idx, "Rectangle")
+    return structural_shape, bmi_cat
 
 
 

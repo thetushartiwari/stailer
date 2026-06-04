@@ -154,6 +154,34 @@
     box-shadow: 0 4px 12px rgba(0, 242, 254, 0.4);
   }
 
+  /* Interactive Gender Filter Chips */
+  .gender-chips {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .gender-chip {
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text-gray);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .gender-chip:hover, .gender-chip.active {
+    color: white;
+    border-color: var(--accent-cyan);
+    background: rgba(0, 242, 254, 0.08);
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.2);
+  }
+
   /* Clothing Card Grid */
   .card-grid {
     display: grid;
@@ -473,7 +501,12 @@
     <div class="refiner-wrapper">
       <form id="refine-form" onsubmit="submitRefinement(event);">
         <input type="text" class="refiner-input" id="refine-input"
-               placeholder="Refine your selection... (e.g. 'more softer colors', 'add a matching jacket')">
+               {% if not profile.body_type and not profile.skin_tone %}
+               placeholder="e.g. I'm 5'6, fair skin, pear shape — casual ethnic wear"
+               {% else %}
+               placeholder="Refine your selection... (e.g. 'more softer colors', 'add a matching jacket')"
+               {% endif %}
+        >
         <button type="submit" class="refiner-btn">Refine Style</button>
       </form>
     </div>
@@ -482,12 +515,28 @@
     <div>
       <div class="feed-header">
         <h2>Your Curated Wardrobe Rack</h2>
-        <div class="gender-chips">
-          <a href="/recommendations/?gender=all" class="gender-chip {% if gender == 'all' %}active{% endif %}">All Apparel</a>
-          <a href="/recommendations/?gender=men" class="gender-chip {% if gender == 'men' %}active{% endif %}">Men</a>
-          <a href="/recommendations/?gender=women" class="gender-chip {% if gender == 'women' %}active{% endif %}">Women</a>
-          <a href="/recommendations/?gender=kids" class="gender-chip {% if gender == 'kids' %}active{% endif %}">Kids</a>
-        </div>
+        {% if not profile.body_type and not profile.skin_tone %}
+          <!-- Undiagnosed/Reset state: Show interactive tabs to choose gender categories -->
+          <div class="gender-chips">
+            <a href="/recommendations/?gender=all" class="gender-chip {% if gender == 'all' or not gender %}active{% endif %}">All Apparel</a>
+            <a href="/recommendations/?gender=men" class="gender-chip {% if gender == 'men' %}active{% endif %}">Men</a>
+            <a href="/recommendations/?gender=women" class="gender-chip {% if gender == 'women' %}active{% endif %}">Women</a>
+            <a href="/recommendations/?gender=kids" class="gender-chip {% if gender == 'kids' %}active{% endif %}">Kids</a>
+          </div>
+        {% else %}
+          <!-- Diagnosed state: Locked static curation badge -->
+          <div style="font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--accent-cyan); background: rgba(0, 242, 254, 0.04); padding: 8px 18px; border-radius: 20px; border: 1px solid rgba(0, 242, 254, 0.15); letter-spacing: 0.5px;">
+            {% if gender == 'men' %}
+              Men's Curation
+            {% elif gender == 'women' %}
+              Women's Curation
+            {% elif gender == 'kids' %}
+              Kids' Curation
+            {% else %}
+              All Apparel
+            {% endif %}
+          </div>
+        {% endif %}
       </div>
       
       <div class="card-grid" id="product-grid">

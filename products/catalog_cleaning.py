@@ -305,7 +305,7 @@ def clean_product_values(title, brand, gender, category, description, category_t
     clean_gender = infer_gender(title, description, category, gender, product_url)
     clean_category = infer_category(title, description, clean_gender, category)
     clean_category_type = infer_category_type(title, description, clean_category, category_type)
-    combined_text = f"{title} {description} {clean_category}"
+    combined_text = f"{title} {description} {clean_category} {product_url}"
 
     return {
         "title": title,

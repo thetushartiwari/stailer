@@ -92,6 +92,7 @@ def profile_payload(profile: UserProfile | None, selected_gender: str) -> dict:
         "selected_gender": selected_gender,
         "skin_tone": profile.skin_tone or "",
         "body_type": profile.body_type or "",
+        "bmi_category": getattr(profile, "bmi_category", "Normal") or "Normal",
         "height_cm": profile.height,
         "weight_kg": profile.weight,
         "bust": profile.bust_size,
@@ -218,7 +219,11 @@ def create_style_plan(prompt: str, profile: UserProfile | None, selected_gender:
                 "You are stAiler's AI stylist planner. Given a user profile and styling prompt, "
                 "produce a concise catalog-backed style plan. Use ONLY category values from catalog_metadata. "
                 "Keep stylist_response under 100 characters. Keep style_direction under 80 characters. "
-                "budget_max should be null unless a budget is explicitly mentioned."
+                "budget_max should be null unless a budget is explicitly mentioned. "
+                "Use the user's skin_tone to add harmonious colors to preferred_colors. "
+                "Use their body_type, bmi_category, and height_cm to determine fit_strategy array values (e.g. ['oversized', 'slim', 'draped']). "
+                "If the user mentions their own skin tone, body shape, or height directly in the prompt text, "
+                "honour those signals in fit_strategy and preferred_colors even if the stored profile fields are empty."
             )
             # Trim metadata to reduce payload size
             trimmed_metadata = {
@@ -244,7 +249,7 @@ def create_style_plan(prompt: str, profile: UserProfile | None, selected_gender:
                     "preferred_category_types": {"type": "ARRAY", "items": {"type": "STRING"}},
                     "avoid_categories": {"type": "ARRAY", "items": {"type": "STRING"}},
                     "preferred_colors": {"type": "ARRAY", "items": {"type": "STRING"}},
-                    "fit_strategy": {"type": "STRING"},
+                    "fit_strategy": {"type": "ARRAY", "items": {"type": "STRING"}},
                     "style_direction": {"type": "STRING"},
                     "minimum_confidence": {"type": "NUMBER"},
                     "stylist_response": {"type": "STRING"},

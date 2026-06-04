@@ -48,17 +48,45 @@ def _skin_score(product: Product, profile: UserProfile | None, plan: StylePlan) 
 
     skin = (getattr(profile, "skin_tone", "") or "").lower()
     if skin in SKIN_TONE_COLORS:
-        harmony = get_color_similarity(colors, SKIN_TONE_COLORS[skin])
-        score = max(score, harmony)
-        if harmony > 0:
+        if not colors:
+            # Fallback for products with empty color lists in sparse catalog
+            score = max(score, 0.6)
             reasons.append(f"Color palette suits {skin} skin tone")
+        else:
+            # Dynamically split skin tone colors to match single-word catalog tokens
+            flat_palette = []
+            for color in SKIN_TONE_COLORS[skin]:
+                flat_palette.extend(color.split())
+
+            harmony = get_color_similarity(colors, flat_palette)
+            score = max(score, harmony)
+            if harmony > 0:
+                # Find the actual matching palette colors dynamically
+                matching_palette_colors = []
+                for sc in SKIN_TONE_COLORS[skin]:
+                    sc_words = sc.split()
+                    if any(pc in sc_words for pc in colors):
+                        matching_palette_colors.append(sc)
+                
+                if matching_palette_colors:
+                    color_str = ", ".join(sorted(set(matching_palette_colors))).title()
+                    reasons.append(f"The {color_str} tones match your {skin.title()} Skin DNA")
+                else:
+                    reasons.append(f"Color palette suits {skin} skin tone")
 
     return score, reasons
 
 
 def _body_score(product: Product, profile: UserProfile | None, plan: StylePlan) -> tuple[float, list[str]]:
+    if not profile:
+        return 0.0, []
+
+    import re
     body = (getattr(profile, "body_type", "") or "").lower()
-    text = " ".join(
+    bmi_cat = getattr(profile, "bmi_category", "Normal") or "Normal"
+    height = getattr(profile, "height", 0.0) or 0.0
+    
+    product_text = " ".join(
         [
             product.title or "",
             product.category or "",
@@ -69,12 +97,75 @@ def _body_score(product: Product, profile: UserProfile | None, plan: StylePlan) 
             " ".join(plan.fit_strategy),
         ]
     ).lower()
-    terms = BODY_FIT_TERMS.get(body, ())
-    if not terms:
-        return 0.0, []
-    if any(term in text for term in terms):
-        return 1.0, [f"Fit and silhouette align with {body} body type"]
-    return 0.0, []
+
+    reasons = []
+    score_components = []
+
+    # 1. Structural Silhouette Proportion
+    shape_terms = BODY_FIT_TERMS.get(body, ())
+    matched_shape_terms = [
+        term for term in shape_terms
+        if re.search(r"\b" + re.escape(term) + r"\b", product_text)
+    ]
+    if matched_shape_terms:
+        score_components.append(1.0)
+        term_str = ", ".join(sorted(set(matched_shape_terms))).title()
+        reasons.append(f"The {term_str} detailing flatters your {body.title()} Body DNA")
+    else:
+        score_components.append(0.0)
+
+    # 2. Scale / BMI Weight Drape
+    scale_terms = []
+    if bmi_cat in {"Overweight", "Obese"}:
+        scale_terms = ["relaxed", "loose", "straight", "vertical stripe", "draped", "flowy", "a-line"]
+    elif bmi_cat == "Thin":
+        scale_terms = ["slim", "fitted", "cropped", "bodycon", "tight"]
+        
+    matched_scale_terms = [
+        term for term in scale_terms
+        if re.search(r"\b" + re.escape(term) + r"\b", product_text)
+    ] if scale_terms else []
+    if matched_scale_terms:
+        score_components.append(1.0)
+        scale_str = ", ".join(sorted(set(matched_scale_terms))).title()
+        reasons.append(f"The {scale_str} drape fits your {bmi_cat.lower()} proportions")
+    else:
+        if bmi_cat == "Normal":
+            score_components.append(0.8)
+        else:
+            score_components.append(0.0)
+
+    # 3. Height vertical draping rules
+    height_matched = False
+    if 0.1 < height < 158.0: # Petite Height
+        petite_terms = ["short", "cropped", "vertical", "monochrome", "slim"]
+        matched_height_terms = [
+            term for term in petite_terms
+            if re.search(r"\b" + re.escape(term) + r"\b", product_text)
+        ]
+        if matched_height_terms:
+            score_components.append(1.0)
+            height_str = ", ".join(sorted(set(matched_height_terms))).title()
+            reasons.append(f"The {height_str} cut visually flatters petite stature")
+            height_matched = True
+    elif height > 175.0: # Tall Height
+        tall_terms = ["maxi", "oversized", "layered", "long", "tunic", "draped"]
+        matched_height_terms = [
+            term for term in tall_terms
+            if re.search(r"\b" + re.escape(term) + r"\b", product_text)
+        ]
+        if matched_height_terms:
+            score_components.append(1.0)
+            height_str = ", ".join(sorted(set(matched_height_terms))).title()
+            reasons.append(f"The {height_str} proportions fit tall stature")
+            height_matched = True
+
+    if not height_matched and height > 0.1:
+        score_components.append(0.7)
+
+    # Calculate average biometric fit score
+    final_score = sum(score_components) / len(score_components) if score_components else 0.0
+    return final_score, reasons
 
 
 def _metadata_score(product: Product, plan: StylePlan) -> tuple[float, list[str]]:

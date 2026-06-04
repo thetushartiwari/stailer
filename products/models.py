@@ -26,7 +26,9 @@ class UserProfile(models.Model):
     user_name = models.CharField(max_length=100, null=True, blank=True)
     age = models.IntegerField(null=True, blank=True)
     skin_tone = models.CharField(max_length=50, null=True, blank=True)  # Fair, Medium, Olive, Deep
+    gender = models.CharField(max_length=20, default="all", blank=True)
     body_type = models.CharField(max_length=50, null=True, blank=True)
+    bmi_category = models.CharField(max_length=50, default="Normal", blank=True)
     height = models.FloatField(null=True, blank=True)
     weight = models.FloatField(null=True, blank=True)
     bust_size = models.FloatField(null=True, blank=True)
