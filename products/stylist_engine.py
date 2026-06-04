@@ -98,9 +98,9 @@ def predict_skin_tone_from_rgb(rgb_list):
     mapping = {0: "Fair", 1: "Medium", 2: "Olive", 3: "Deep"}
     return mapping.get(pred_idx, "Medium")
 
-def predict_body_shape(height_cm, weight_kg, bust_in, waist_in, hips_in):
-    """Biometric Supervised Logistic Regression Classifier Pipeline."""
-    classifier = get_loaded_classifier(BODY_CLASSIFIER_PATH)
+def predict_body_shape(height_cm, weight_kg, bust_in, waist_in, hips_in, gender="all"):
+    """Biometric Supervised Logistic Regression or Gender-Specific Heuristics Pipeline."""
+    gender = (gender or "all").lower().strip()
     
     # Calculate anthropometric ratios
     bust_waist = bust_in / waist_in if waist_in else 1.0
@@ -108,8 +108,35 @@ def predict_body_shape(height_cm, weight_kg, bust_in, waist_in, hips_in):
     bust_hips = bust_in / hips_in if hips_in else 1.0
     bmi = weight_kg / ((height_cm / 100.0) ** 2) if height_cm else 22.0
 
-    features = np.array([[bust_waist, hips_waist, bust_hips, bmi]])
+    # 1. Gender-specific rules
+    if gender == "women":
+        if bmi < 18.5:
+            return "Petite"
+        if bust_waist >= 1.25 and hips_waist >= 1.25 and abs(bust_hips - 1.0) <= 0.08:
+            return "Hourglass"
+        if hips_waist >= 1.25 and bust_hips < 0.95:
+            return "Pear"
+        if bmi >= 26.5:
+            return "Apple"
+        if bust_hips >= 1.15 and hips_waist < 1.1:
+            return "Inverted Triangle"
+        return "Rectangle"
+        
+    elif gender == "men":
+        if bmi < 18.5:
+            return "Rectangle"
+        if bust_waist >= 1.2 and hips_waist < 1.15 and bust_hips >= 1.1:
+            return "V-Taper"
+        if bust_waist >= 1.1 and hips_waist >= 1.05:
+            return "Trapezoid"
+        if bmi >= 26.5:
+            return "Oval"
+        if hips_waist >= 1.15:
+            return "Triangle"
+        return "Rectangle"
 
+    # 2. General Fallback (Original logic)
+    classifier = get_loaded_classifier(BODY_CLASSIFIER_PATH)
     if bmi < 18.5:
         return "Petite"
 
@@ -121,10 +148,9 @@ def predict_body_shape(height_cm, weight_kg, bust_in, waist_in, hips_in):
             return "Round"
         if bust_hips >= 1.12:
             return "Athletic"
-        if bmi < 18.5:
-            return "Petite"
         return "Rectangle"
 
+    features = np.array([[bust_waist, hips_waist, bust_hips, bmi]])
     pred_idx = int(classifier.predict(features)[0])
     mapping = {0: "Hourglass", 1: "Round", 2: "Rectangle", 3: "Athletic", 4: "Petite"}
     return mapping.get(pred_idx, "Rectangle")

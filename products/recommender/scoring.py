@@ -10,11 +10,23 @@ from .schemas import CandidateScore, StylePlan
 
 
 BODY_FIT_TERMS = {
-    "athletic": ("structured", "tailored", "slim", "blazer", "suit", "trouser", "formal shirt", "jacket"),
+    # Female silhouettes
     "hourglass": ("tailored", "fit", "flare", "saree", "lehenga", "bodycon", "midi", "blouse"),
-    "round": ("relaxed", "a-line", "anarkali", "loose", "palazzo", "straight"),
+    "pear": ("a-line", "relaxed", "skirt", "high-waisted", "palazzo", "flare"),
+    "apple": ("relaxed", "empire", "loose", "straight", "tunic", "flowy"),
     "rectangle": ("structured", "layered", "jacket", "blazer", "fit", "flare"),
+    "inverted triangle": ("v-neck", "wrap", "wide-leg", "soft", "draped"),
     "petite": ("slim", "short", "cropped", "tshirt", "jumpsuit"),
+    
+    # Male silhouettes
+    "v-taper": ("structured", "tailored", "slim", "blazer", "suit", "jacket", "double-breasted"),
+    "trapezoid": ("regular", "slim", "chinos", "shirt", "polo", "classic"),
+    "triangle": ("structured shoulder", "vertical stripe", "straight", "loose", "relaxed"),
+    "oval": ("relaxed", "vertical stripe", "loose", "straight", "dark color", "black"),
+    
+    # Fallback silhouettes
+    "athletic": ("structured", "tailored", "slim", "blazer", "suit", "trouser", "formal shirt", "jacket"),
+    "round": ("relaxed", "a-line", "anarkali", "loose", "palazzo", "straight"),
 }
 
 

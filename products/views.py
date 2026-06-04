@@ -61,9 +61,14 @@ def diagnose_dna(request):
         profile.waist_size = waist
         profile.hips_size = hips
 
-        # 2. Predict Body Silhouette using Supervised ML
-        if height and weight and bust and waist and hips:
-            body_type = predict_body_shape(height, weight, bust, waist, hips)
+        gender = request.POST.get("gender", "all")
+
+        # 2. Predict Body Silhouette using Supervised ML or Manual Override
+        manual_body_type = request.POST.get("manual_body_type", "").strip()
+        if manual_body_type:
+            profile.body_type = manual_body_type
+        elif height and weight and bust and waist and hips:
+            body_type = predict_body_shape(height, weight, bust, waist, hips, gender=gender)
             profile.body_type = body_type
         
         # 3. Parse Skin Tone
@@ -85,8 +90,6 @@ def diagnose_dna(request):
             profile.age = age
 
         profile.save()
-
-        gender = request.POST.get("gender", "all")
 
         # 4. Save initial prompt to session history
         prompt = request.POST.get("prompt", "").strip()
